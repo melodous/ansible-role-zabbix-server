@@ -12,10 +12,12 @@ zabbix_vhost: True
 zabbix_web: true
 zabbix_database_creation: True
 zabbix_database_sqlload: True
+zabbix_database_partitioning: False
 
 # Database
 database_type: pgsql
 database_type_long: postgresql
+pgsql_partitioning_schema: partitions
 
 # zabbix-server specific vars
 server_listenport: 10051
