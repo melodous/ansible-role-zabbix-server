@@ -10,7 +10,7 @@
                  port={{ server_dbport }}
                  state=present
   become: yes
-  become_user: postgres
+#  become_user: postgres
   delegate_to: "{{ delegated_dbhost }}"
   when: zabbix_database_creation
   tags:
@@ -25,7 +25,7 @@
                    priv=ALL
                    state=present
   become: yes
-  become_user: postgres
+#  become_user: postgres
   delegate_to: "{{ delegated_dbhost }}"
   when: zabbix_database_creation
   tags:
@@ -39,7 +39,7 @@
                      port={{ server_dbport }}
                      state=present
   become: yes
-  become_user: postgres
+#  become_user: postgres
   delegate_to: "{{ delegated_dbhost }}"
   when: zabbix_database_creation and zabbix_database_partitioning
   tags:
@@ -109,3 +109,34 @@
   tags:
     - zabbix-server
     - database
+
+- name: "PostgreSQL | Create partitioning config dir"
+  file: state=directory dest=/etc/zabbix owner=root group=root mode=0755
+  delegate_to: "{{ delegated_dbhost }}"
+  tags:
+    - zabbix-server
+    - database
+
+- name: "PostgresSQL | Create partitioning config file"
+  template: src=partitioning.j2  dest=/etc/zabbix/partitioning.sql owner=root group=root mode=0644
+  delegate_to: "{{ delegated_dbhost }}"
+  tags:
+    - zabbix-server
+    - database
+
+- name: "PostgresSQL | Planning partioning"
+  cron: name="Zabbix partitioning" minute=1 hour=2 user=postgres job="psql -U {{ server_dbuser }} -f /etc/zabbix/partitioning.sql"
+  delegate_to: "{{ delegated_dbhost }}"
+  tags:
+    - zabbix-server
+    - database
+
+- name: "PostgresSQL | Executing partioning"
+  shell: psql -U "{{ server_dbuser }}" -f /etc/zabbix/partitioning.sql
+  become: postgres
+  delegate_to: "{{ delegated_dbhost }}"
+  changed_when: false
+  tags:
+    - zabbix-server
+    - database
+

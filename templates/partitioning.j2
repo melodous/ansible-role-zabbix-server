@@ -1,0 +1,3 @@
+{% for item in postgresql_table_partitioning %}
+SELECT zbx_provision_partitions('{{ item.table }}', '{{ item.period }}', {{ item.number }});
+{% endfor %}
