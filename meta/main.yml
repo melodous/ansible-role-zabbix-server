@@ -21,5 +21,3 @@ galaxy_info:
     - wheezy
   categories:
   - monitoring
-dependencies:
-- { name: apache, src: apache, tags: apache }
